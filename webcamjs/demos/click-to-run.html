@@ -1,0 +1,118 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>WebcamJS Test Page</title>
+	<style type="text/css">
+		body { font-family: Helvetica, sans-serif; }
+		h2, h3 { margin-top:0; }
+		form { margin-top: 15px; }
+		form > input { margin-right: 15px; }
+		#results { float:right; margin:20px; padding:20px; border:1px solid; background:#ccc; }
+	</style>
+</head>
+<body>
+	<div id="results">Your captured image will appear here...</div>
+	
+	<h1>WebcamJS Test Page</h1>
+	<h3>Demonstrates setting up camera after a click.</h3>
+	
+	<div id="my_camera"></div>
+	
+	<!-- First, include the Webcam.js JavaScript Library -->
+	<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+	<script type="text/javascript" src="../webcam.min.js"></script>
+	
+	<!-- Configure a few settings and attach camera -->
+	<script language="JavaScript">
+		Webcam.set({
+			width: 320,
+			height: 240,
+			image_format: 'png',
+		});
+	</script>
+	
+	<!-- A button for taking snaps -->
+	<form>
+		<input type="button" value="Access Camera" onClick="setup();">
+		<input type="button" value="Detect" onClick="take_snapshot(detect)">
+		<input type="button" value="New Face" onClick="take_snapshot(newFace)">
+		<input type="text" placeholder="Face ID" id="id_user">
+		<div id="message"></div>
+	</form>
+	
+	<!-- Code to handle taking the snapshot and displaying it locally -->
+	<script language="JavaScript">
+		function setup() {
+			Webcam.reset();
+			Webcam.attach( '#my_camera' );
+		}
+		function clearMessage(){
+			$("#message").text();
+		}
+		function setMessage(message){
+			$("#message").text(message);
+		}
+		function detect(photo) {
+			clearMessage();
+			$.ajax({
+				contentType: 'application/x-www-form-urlencoded',
+				data: {
+					"photo": photo.replace('data:image/png;base64,', '')
+				},
+				success: function(data){
+					console.log(data);
+					if(data.ExternalImageId) {
+						setMessage("found face: "+data.ExternalImageId)
+					}
+				},
+				error: function(){
+					console.log("Device control failed");
+				},
+				type: 'POST',
+				url: 'http://localhost:3000/detect-face'
+			});
+		}
+
+		
+		function newFace(photo) {
+			var id_user = $("#id_user").val();
+			if(!id_user) {
+				alert('Set User Id first');
+				return;
+			}
+			$.ajax({
+				contentType: 'application/x-www-form-urlencoded',
+				data: {
+					"photo": photo.replace('data:image/png;base64,', ''),
+					id_user: id_user
+				},
+				success: function(data){
+					console.log(data);
+					$("#id_user").val("");
+				},
+				error: function(){
+					console.log("Device control failed");
+				},
+				type: 'POST',
+				url: 'http://localhost:3000/index-new-face'
+			});
+		}
+
+
+
+		function take_snapshot(cb) {
+			// take snapshot and get image data
+			Webcam.snap( function(data_uri) {
+				// display results in page
+				document.getElementById('results').innerHTML = 
+					'<h2>Here is your image:</h2>' + 
+					'<img src="'+data_uri+'"/>';
+				cb(data_uri);		
+			} );
+		}
+	</script>
+	
+</body>
+</html>
