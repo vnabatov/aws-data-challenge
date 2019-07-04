@@ -6,6 +6,22 @@
 	<title>WebcamJS Test Page</title>
 	<style type="text/css">
 		body { font-family: Helvetica, sans-serif; }
+		input[type='button'] {
+			border-radius: 3px;
+			padding: 10px;
+			background-color: coral;
+			border: none;
+			transition: all .5s;
+		}
+		input[type='button']:hover {
+			background-color: crimson;
+		}
+		.new_face {
+			margin-top:10px;
+			border: 1px dashed coral;
+			padding: 10px;
+			width: 300px;
+		}
 		h2, h3 { margin-top:0; }
 		form { margin-top: 15px; }
 		form > input { margin-right: 15px; }
@@ -15,8 +31,7 @@
 <body>
 	<div id="results">Your captured image will appear here...</div>
 	
-	<h1>WebcamJS Test Page</h1>
-	<h3>Demonstrates setting up camera after a click.</h3>
+	<h1>Data Analysis challenge #2</h1>
 	
 	<div id="my_camera"></div>
 	
@@ -36,9 +51,13 @@
 	<!-- A button for taking snaps -->
 	<form>
 		<input type="button" value="Access Camera" onClick="setup();">
-		<input type="button" value="Detect" onClick="take_snapshot(detect)">
-		<input type="button" value="New Face" onClick="take_snapshot(newFace)">
-		<input type="text" placeholder="Face ID" id="id_user">
+		<div class="new_face">
+			<input type="button" value="Detect" onClick="take_snapshot(detect)">
+		</div>
+		<div class="new_face">
+			<input type="button" value="New Face" onClick="take_snapshot(newFace)">
+			<input type="text" placeholder="Face ID" id="id_user">
+		</div>
 		<div id="message"></div>
 	</form>
 	
